@@ -1,0 +1,30 @@
+name: Swift
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build
+      run: swift build -v
+    
+    - name: Run tests
+      run: swift test -v --enable-code-coverage
+    
+    - name: Swift Coverage Report # .build/debug/codecov/lcov.info
+      uses: maxep/spm-lcov-action@0.3.1 
+
+    - uses: codecov/codecov-action@v3
+      with:
+        files: .build/debug/codecov/lcov.info
+        flags: unittests # optional
+        fail_ci_if_error: true
