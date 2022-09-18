@@ -18,7 +18,7 @@ public struct QueueIterator<Element>: IteratorProtocol {
   @inlinable
   public mutating func next() -> Element? {
     guard _current != _store._tail || _hasAny else { return nil }
-    let e = _store._array[_current]
+    let e = _store._buffer[_current]
     _current = (_current + 1) % _store._capacity
     _hasAny = false
     return e
