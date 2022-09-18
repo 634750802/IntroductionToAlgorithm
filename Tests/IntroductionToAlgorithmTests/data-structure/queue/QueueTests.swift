@@ -55,7 +55,6 @@ final class QueueTests: XCTestCase {
   func testSequenceInit() {
     XCTAssertTrue(Queue<Int>([1, 2, 3]).isFull)
   }
-}
 
   func testCopyOnWrite() {
     var a = Queue<Int>([1, 2, 3])
@@ -69,5 +68,13 @@ final class QueueTests: XCTestCase {
     XCTAssertEqual(1, b.dequeue())
     XCTAssertEqual(2, b.dequeue())
     XCTAssertEqual(3, b.dequeue())
-//  }
+  }
+
+  func testDeinit() {
+    var a: Queue<Int>? = Queue<Int>(capacity: 1)
+    a = nil
+    a = Queue<Int>([1, 2, 3])
+    a = nil
+    XCTAssertNil(a)
+  }
 }
