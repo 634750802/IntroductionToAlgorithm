@@ -16,6 +16,7 @@ extension _QueueProtocol {
     return true
   }
 
+  @discardableResult
   @inlinable
   public mutating func dequeue() -> Element? {
     guard !isEmpty else {

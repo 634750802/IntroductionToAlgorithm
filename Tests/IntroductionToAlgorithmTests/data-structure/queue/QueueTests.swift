@@ -79,6 +79,14 @@ final class QueueTests: XCTestCase {
     XCTAssertNil(a)
   }
 
+  func testIncreaseIfNeed () {
+    var a = Queue<Int>([1, 2, 3])
+    a.increaseSizeIfNeed(factor: 2)
+    XCTAssertEqual(a._store._capacity, 6)
+    XCTAssertFalse(a.isFull)
+    XCTAssertEqual(a.dequeue(), 1)
+  }
+
   func testResize() {
     var a = Queue([1, 2, 3])
     a.resize(capacity: 4)
@@ -86,5 +94,14 @@ final class QueueTests: XCTestCase {
     a.enqueue(4)
     XCTAssertTrue(a.isFull)
     XCTAssertEqual(Array(a), [1, 2, 3, 4])
+  }
+
+  func testCount() {
+    var a = Queue([1, 2])
+    XCTAssertEqual(a.count, 2)
+    a.dequeue()
+    XCTAssertEqual(a.count, 1)
+    a.dequeue()
+    XCTAssertEqual(a.count, 0)
   }
 }
