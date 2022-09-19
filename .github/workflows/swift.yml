@@ -10,10 +10,11 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
-        release: [ true, false ]
+        os: [ ubuntu-latest, macos-latest ]
+        release: [ debug, release ]
 
     runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} - ${{ matrix.release }}
 
     steps:
     - uses: swift-actions/setup-swift@v1
@@ -21,23 +22,18 @@ jobs:
         swift-version: '5.7'
     - uses: actions/checkout@v3
     
-    - name: Build
-      run: swift build
-    
-    - name: Run debug tests
-      if: ${{ !matrix.release }}
-      run: swift test --enable-code-coverage
+    - name: Build debug
+      run: swift build -c ${{ matrix.release }}
 
-    - name: Run release tests
-      if: ${{ matrix.release }}
-      run: swift test -c release -Xswiftc -enable-testing -Xswiftc -DRELEASE_TEST --enable-code-coverage
+    - name: Run tests
+      run: swift test -c ${{ matrix.release }} -Xswiftc -enable-testing -Xswiftc -DRELEASE_TEST --enable-code-coverage
     
     - name: Swift Coverage Report # .build/debug/codecov/lcov.info
-      if: ${{ !matrix.release && matrix.os == 'ubuntu-latest' }}
+      if: ${{ matrix.release == 'Debug' && matrix.os == 'ubuntu-latest' }}
       uses: maxep/spm-lcov-action@0.3.1 
 
     - uses: codecov/codecov-action@v3
-      if: ${{ !matrix.release && matrix.os == 'ubuntu-latest' }}
+      if: ${{ matrix.release == 'Debug' && matrix.os == 'ubuntu-latest' }}
       with:
         files: .build/debug/codecov/lcov.info
         flags: unittests # optional
