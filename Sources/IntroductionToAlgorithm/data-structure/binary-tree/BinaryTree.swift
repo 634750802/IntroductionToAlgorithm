@@ -62,8 +62,7 @@ public struct BinaryTree<Element>: BinaryTreeProtocol, _StoredProtocol {
   public mutating func insert<S>(path: S, element: Element) where S: Sequence, S.Element == BinaryTreeDir {
     _cloneIfNeeds()
     let (parent, path) = _find(parent: path)
-    let node = _BinaryTreePointer<Element>.allocate(capacity: 1)
-    node.initialize(to: .init(_p: parent, _l: nil, _r: nil, _element: element))
+    let node = _binary_tree_node_allocate(element: element, parent: parent)
     guard let path else {
       guard _store._root == nil else { fatalError("bad insert: leaf already exists") }
       _store._root = node

@@ -68,11 +68,20 @@ struct _BinaryTreeNode<Element> {
 typealias _BinaryTreePointer<Element> = UnsafeMutablePointer<_BinaryTreeNode<Element>>
 
 @usableFromInline
+func _binary_tree_node_allocate<T>(element: T, parent: _BinaryTreePointer<T>?) -> _BinaryTreePointer<T> {
+  let ptr = _BinaryTreePointer<T>.allocate(capacity: 1)
+  ptr.initialize(to: .init(_p: parent, _l: nil, _r: nil, _element: element))
+  _debug_binary_tree_allocate_record()
+  return ptr
+}
+
+@usableFromInline
 func _binary_tree_node_dealloc<T>(node: _BinaryTreePointer<T>?) {
   guard let node else { return }
   _binary_tree_node_walk_bf(node: node, initialState: ()) { (pointer, _) in
     pointer.deinitialize(count: 1)
     pointer.deallocate()
+    _debug_binary_tree_deallocate_record()
     return .next(())
   }
 }
@@ -81,8 +90,7 @@ func _binary_tree_node_dealloc<T>(node: _BinaryTreePointer<T>?) {
 func _binary_tree_node_clone<T>(node: _BinaryTreePointer<T>?) -> _BinaryTreePointer<T>? {
   guard let node else { return nil }
 
-  let new = _BinaryTreePointer<T>.allocate(capacity: 1)
-  new.initialize(to: _BinaryTreeNode(_p: node.pointee._p, _element: node.pointee._element))
+  let new = _binary_tree_node_allocate(element: node.pointee._element, parent: node.pointee._p)
 
   if let l = node.pointee._l {
     new.pointee._l = _binary_tree_node_clone(node: l)
@@ -148,3 +156,27 @@ func _binary_tree_node_walk_df<T, S>(node: _BinaryTreePointer<T>, initialState: 
   }
   return state
 }
+
+
+@usableFromInline
+var _debug_binary_tree_node_count = 0
+
+#if DEBUG || RELEASE_TEST
+  @inlinable
+  func _debug_binary_tree_allocate_record() {
+    _debug_binary_tree_node_count += 1
+  }
+
+  @inlinable
+  func _debug_binary_tree_deallocate_record() {
+    _debug_binary_tree_node_count -= 1
+  }
+#else
+  @inlinable
+  func _debug_binary_tree_allocate_record() {
+  }
+
+  @inlinable
+  func _debug_binary_tree_deallocate_record() {
+  }
+#endif
