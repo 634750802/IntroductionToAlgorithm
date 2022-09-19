@@ -40,3 +40,28 @@ func _assertTreeEquals<Element: Equatable>(tree: BinaryTree<Element>, element: E
   XCTAssertNil(root.pointee._l, file: file, line: line)
   XCTAssertNil(root.pointee._r, file: file, line: line)
 }
+
+@inlinable
+func _buildRandomTree<T>(size: Int, _ gen: () -> T) -> BinaryTree<T> {
+  typealias Ptr = _BinaryTreePointer<T>
+  let dirs: [BinaryTreeDir] = [.left, .right]
+  var size = size - 1
+  var pointers = Set<Ptr>()
+  let root = _binary_tree_node_allocate(element: gen(), parent: nil)
+  pointers.insert(root)
+  while size > 0 {
+    let node = pointers[pointers.indices.randomElement()!]
+    let dir = dirs.randomElement()!
+    if node.pointee[dir] != nil {
+      continue
+    }
+    let newNode = _binary_tree_node_allocate(element: gen(), parent: node)
+    node.pointee[dir] = newNode
+    pointers.insert(newNode)
+    if node.pointee[dir.opposite] != nil {
+      pointers.remove(node)
+    }
+    size -= 1
+  }
+  return BinaryTree(root: root)
+}

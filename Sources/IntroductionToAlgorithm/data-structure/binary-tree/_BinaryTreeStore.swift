@@ -104,6 +104,38 @@ func _binary_tree_node_clone<T>(node: _BinaryTreePointer<T>?) -> _BinaryTreePoin
 }
 
 @usableFromInline
+func _binary_tree_depth<T>(node: _BinaryTreePointer<T>?) -> Int {
+  guard let node else { return 0 }
+  var queue = Queue<_BinaryTreePointer<T>>(capacity: 8)
+  queue.enqueue(node)
+
+  var current = 0, levelNodes = 1, nextLevelNodes = 0, depth = 0
+  while let node = queue.dequeue() {
+    if let l = node.pointee._l {
+      nextLevelNodes += 1
+      queue.increaseSizeIfNeed(factor: 2)
+      queue.enqueue(l)
+    }
+
+    if let r = node.pointee._r {
+      nextLevelNodes += 1
+      queue.increaseSizeIfNeed(factor: 2)
+      queue.enqueue(r)
+    }
+
+    current += 1
+    if current == levelNodes {
+      depth += 1
+      current = 0
+      levelNodes = nextLevelNodes
+      nextLevelNodes = 0
+    }
+  }
+
+  return depth
+}
+
+@usableFromInline
 func _binary_tree_node_walk_bf<T, S>(node: _BinaryTreePointer<T>, initialState: S, walker: _BinaryTreeWalker<T, S>) -> S {
   var queue = Queue<_BinaryTreePointer<T>>(capacity: 8)
   var state = initialState

@@ -63,6 +63,7 @@ final class QueueTests: XCTestCase {
     var b = a
 
     XCTAssertEqual(1, a.dequeue())
+    XCTAssertFalse(a._store === b._store)
     XCTAssertEqual(2, a.dequeue())
     XCTAssertEqual(3, a.dequeue())
 

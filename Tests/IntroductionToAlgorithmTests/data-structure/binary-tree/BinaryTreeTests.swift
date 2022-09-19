@@ -37,7 +37,7 @@ final class BinaryTreeTests: XCTestCase {
   func testRemove() {
     var tree = demoTree()
     _assertTreeEquals(tree: tree.remove(path: [.left, .left]), element: 2)
-    _assertTreeEquals(tree: tree.remove(path:  [.right]), element: 4)
+    _assertTreeEquals(tree: tree.remove(path: [.right]), element: 4)
     XCTAssertEqual(_debug_binary_tree_node_count, 3)
 
     _assertTreeDfEquals(tree: tree, array: [0, 1, 3])
@@ -88,4 +88,17 @@ final class BinaryTreeTests: XCTestCase {
     _assertTreeDfEquals(tree: tree, array: Array(tree.dfView))
     _assertTreeBfEquals(tree: tree, array: Array(tree.bfView))
   }
+
+  func testDepth() {
+    func depth<T>(_ node: _BinaryTreePointer<T>?) -> Int {
+      guard let node else { return 0 }
+      return max(depth(node.pointee._l) + 1, depth(node.pointee._r) + 1)
+    }
+
+    for _ in 0..<10 {
+      let tree = _buildRandomTree(size: 2000, { Int.random(in: 0..<2000) })
+      XCTAssertEqual(tree.depth, depth(tree._store._root))
+    }
+  }
+
 }

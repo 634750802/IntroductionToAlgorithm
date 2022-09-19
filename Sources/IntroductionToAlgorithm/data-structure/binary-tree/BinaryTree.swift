@@ -101,6 +101,10 @@ public struct BinaryTree<Element>: BinaryTreeProtocol, _StoredProtocol {
     guard let ptr = _find(path: path) else { fatalError("bad tree path") }
     mutating(&ptr.pointee._element)
   }
+
+  public var depth: Int {
+    _binary_tree_depth(node: _store._root)
+  }
 }
 
 extension BinaryTree: Sequence {

@@ -25,6 +25,17 @@ internal class _UnsafeListStore<Element> {
     pointer(at: index).initialize(to: element)
   }
 
+
+  @inlinable
+  func initialize(from: UnsafeMutablePointer<Element>, range: Range<Int>, at index: Int = 0) {
+    pointer(at: index).initialize(from: from.advanced(by: range.startIndex), count: range.count)
+  }
+
+  @inlinable
+  func initialize(from: _UnsafeListStore<Element>, range: Range<Int>, at index: Int = 0) {
+    initialize(from: from.pointer(at: 0), range: range, at: index)
+  }
+
   @inlinable
   func initialize<S: Sequence>(from elements: S, at index: Int = 0) where S.Element == Element {
     var i  = 0
