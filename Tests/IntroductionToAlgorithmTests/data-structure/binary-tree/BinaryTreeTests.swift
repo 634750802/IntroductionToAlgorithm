@@ -80,4 +80,12 @@ final class BinaryTreeTests: XCTestCase {
     XCTAssertEqual(_debug_binary_tree_node_count, 0)
     XCTAssertNil(a)
   }
+
+  func testIterators() {
+    let tree: BinaryTree<Int> = demoTree()
+
+    _assertTreeDfEquals(tree: tree, array: Array(tree))
+    _assertTreeDfEquals(tree: tree, array: Array(tree.dfView))
+    _assertTreeBfEquals(tree: tree, array: Array(tree.bfView))
+  }
 }

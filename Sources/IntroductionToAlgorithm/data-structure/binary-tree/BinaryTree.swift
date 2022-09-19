@@ -102,3 +102,42 @@ public struct BinaryTree<Element>: BinaryTreeProtocol, _StoredProtocol {
     mutating(&ptr.pointee._element)
   }
 }
+
+extension BinaryTree: Sequence {
+
+  public struct BFView<Element>: BinaryTreeView {
+    @usableFromInline
+    var _tree: BinaryTree<Element>
+
+    @usableFromInline
+    init(_ tree: BinaryTree<Element>) { _tree = tree }
+
+    public func makeIterator() -> BinaryTreeBreadthFirstIterator<Element> {
+      BinaryTreeBreadthFirstIterator(_tree._store._root)
+    }
+  }
+
+  public struct DFView<Element>: BinaryTreeView {
+    @usableFromInline
+    var _tree: BinaryTree<Element>
+
+    @usableFromInline
+    init(_ tree: BinaryTree<Element>) { _tree = tree }
+
+    public func makeIterator() -> BinaryTreeDepthFirstIterator<Element> {
+      BinaryTreeDepthFirstIterator(_tree._store._root)
+    }
+  }
+
+  public func makeIterator() -> BinaryTreeDepthFirstIterator<Element> {
+    BinaryTreeDepthFirstIterator(_store._root)
+  }
+
+  public var bfView: BFView<Element> {
+    BFView(self)
+  }
+
+  public var dfView: DFView<Element> {
+    DFView(self)
+  }
+}
