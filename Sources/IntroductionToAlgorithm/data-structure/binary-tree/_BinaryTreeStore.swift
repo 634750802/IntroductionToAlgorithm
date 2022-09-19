@@ -12,8 +12,8 @@ class _BinaryTreeStore<Element>: _Store {
   }
 
   @inlinable
-  init() {
-    _root = nil
+  init(root: _BinaryTreePointer<Element>? = nil) {
+    _root = root
   }
 
   deinit {

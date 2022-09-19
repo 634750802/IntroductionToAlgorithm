@@ -20,24 +20,34 @@ final class BinaryTreeTests: XCTestCase {
     let tree = demoTree()
     XCTAssertEqual(_debug_binary_tree_node_count, 5)
 
-    _assertDfEquals(tree: tree, array: [0, 1, 2, 3, 4])
-    _assertBfEquals(tree: tree, array: [0, 1, 4, 2, 3])
+    _assertTreeDfEquals(tree: tree, array: [0, 1, 2, 3, 4])
+    _assertTreeBfEquals(tree: tree, array: [0, 1, 4, 2, 3])
+  }
+
+  func testInsert() {
+    var tree = demoTree()
+    var tree2: BinaryTree<Int>? = demoTree()
+    tree.insert(path: [.right, .right], tree: &tree2!)
+    tree2 = nil
+    XCTAssertEqual(_debug_binary_tree_node_count, 10)
+
+    _assertTreeDfEquals(tree: tree, array: [0, 1, 2, 3, 4, 0, 1, 2, 3, 4])
   }
 
   func testRemove() {
     var tree = demoTree()
-    tree.remove(path: [.left, .left])
-    tree.remove(path: [.right])
+    _assertTreeEquals(tree: tree.remove(path: [.left, .left]), element: 2)
+    _assertTreeEquals(tree: tree.remove(path:  [.right]), element: 4)
     XCTAssertEqual(_debug_binary_tree_node_count, 3)
 
-    _assertDfEquals(tree: tree, array: [0, 1, 3])
-    _assertBfEquals(tree: tree, array: [0, 1, 3])
+    _assertTreeDfEquals(tree: tree, array: [0, 1, 3])
+    _assertTreeBfEquals(tree: tree, array: [0, 1, 3])
 
-    tree.remove(path: [])
+    _assertTreeDfEquals(tree: tree.remove(path: []), array: [0, 1, 3])
     XCTAssertEqual(_debug_binary_tree_node_count, 0)
 
-    _assertDfEquals(tree: tree, array: [])
-    _assertBfEquals(tree: tree, array: [])
+    _assertTreeDfEquals(tree: tree, array: [])
+    _assertTreeBfEquals(tree: tree, array: [])
   }
 
   func testMutate() {
@@ -45,8 +55,8 @@ final class BinaryTreeTests: XCTestCase {
     tree.mutate(path: [.right]) { i in i = 5 }
     XCTAssertEqual(_debug_binary_tree_node_count, 5)
 
-    _assertDfEquals(tree: tree, array: [0, 1, 2, 3, 5])
-    _assertBfEquals(tree: tree, array: [0, 1, 5, 2, 3])
+    _assertTreeDfEquals(tree: tree, array: [0, 1, 2, 3, 5])
+    _assertTreeBfEquals(tree: tree, array: [0, 1, 5, 2, 3])
   }
 
   func testCOW() {
@@ -57,10 +67,10 @@ final class BinaryTreeTests: XCTestCase {
     b.mutate(path: [.right]) { i in i = 5 }
     XCTAssertEqual(_debug_binary_tree_node_count, 10)
 
-    _assertDfEquals(tree: a, array: [0, 1, 2, 3, 4])
-    _assertBfEquals(tree: a, array: [0, 1, 4, 2, 3])
-    _assertDfEquals(tree: b, array: [0, 1, 2, 3, 5])
-    _assertBfEquals(tree: b, array: [0, 1, 5, 2, 3])
+    _assertTreeDfEquals(tree: a, array: [0, 1, 2, 3, 4])
+    _assertTreeBfEquals(tree: a, array: [0, 1, 4, 2, 3])
+    _assertTreeDfEquals(tree: b, array: [0, 1, 2, 3, 5])
+    _assertTreeBfEquals(tree: b, array: [0, 1, 5, 2, 3])
   }
 
   func testDeallocate() {

@@ -7,6 +7,11 @@ public struct BinaryTree<Element>: BinaryTreeProtocol, _StoredProtocol {
     _store = .init()
   }
 
+  @usableFromInline
+  init(root: _BinaryTreePointer<Element>) {
+    _store = .init(root: root)
+  }
+
   @inlinable
   func _find<S>(path: S) -> _BinaryTreePointer<Element>? where S: Sequence, S.Element == BinaryTreeDir {
     var iter = path.makeIterator()
@@ -34,24 +39,40 @@ public struct BinaryTree<Element>: BinaryTreeProtocol, _StoredProtocol {
   }
 
   @inlinable
-  public mutating func remove<S>(path: S) where S: Sequence, S.Element == BinaryTreeDir {
+  mutating func _insert<S>(path: S, node: (_BinaryTreePointer<Element>?) -> _BinaryTreePointer<Element>?) where S: Sequence, S.Element == BinaryTreeDir {
+    _cloneIfNeeds()
+    let (parent, path) = _find(parent: path)
+    guard let path else {
+      guard _store._root == nil else { fatalError("bad insert: leaf already exists") }
+      _store._root = node(parent)
+      return
+    }
+    guard let parent else {
+      fatalError("bad insert: root not exists")
+    }
+    parent.pointee[path] = node(parent)
+  }
+
+  @discardableResult
+  @inlinable
+  public mutating func remove<S>(path: S) -> Self where S: Sequence, S.Element == BinaryTreeDir {
     _cloneIfNeeds()
     let ptr = _find(path: path)
     if let ptr {
       if let parent = ptr.pointee._p {
         if parent.pointee._l == ptr {
           parent.pointee._l = nil
-          _binary_tree_node_dealloc(node: ptr)
+          return BinaryTree(root: ptr)
         } else if parent.pointee._r == ptr {
           parent.pointee._r = nil
-          _binary_tree_node_dealloc(node: ptr)
+          return BinaryTree(root: ptr)
         } else {
           fatalError("bad tree")
         }
       } else {
         guard _store._root == ptr else { fatalError("bad tree") }
         _store._root = nil
-        _binary_tree_node_dealloc(node: ptr)
+        return BinaryTree(root: ptr)
       }
     } else {
       fatalError("bad tree: no root")
@@ -60,18 +81,18 @@ public struct BinaryTree<Element>: BinaryTreeProtocol, _StoredProtocol {
 
   @inlinable
   public mutating func insert<S>(path: S, element: Element) where S: Sequence, S.Element == BinaryTreeDir {
-    _cloneIfNeeds()
-    let (parent, path) = _find(parent: path)
-    let node = _binary_tree_node_allocate(element: element, parent: parent)
-    guard let path else {
-      guard _store._root == nil else { fatalError("bad insert: leaf already exists") }
-      _store._root = node
-      return
+    _insert(path: path) { parent in _binary_tree_node_allocate(element: element, parent: parent) }
+  }
+
+  @inlinable
+  public mutating func insert<S>(path: S, tree: inout BinaryTree<Element>) where S: Sequence, S.Element == BinaryTreeDir {
+    _insert(path: path) { parent in
+      tree._cloneIfNeeds()
+      let pointer = tree._store._root
+      pointer?.pointee._p = parent
+      tree._store._root = nil
+      return pointer
     }
-    guard let parent else {
-      fatalError("bad insert: root not exists")
-    }
-    parent.pointee[path] = node
   }
 
   @inlinable
