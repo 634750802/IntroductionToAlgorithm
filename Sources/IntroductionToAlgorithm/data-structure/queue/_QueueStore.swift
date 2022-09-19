@@ -5,10 +5,7 @@ enum _QueueOp {
 }
 
 @usableFromInline
-class _QueueStore<Element>: _Store {
-
-  @usableFromInline
-  var _buffer: UnsafeMutableBufferPointer<Element>
+final class _QueueStore<Element>: _UnsafeListStore<Element>, _Store {
 
   @usableFromInline
   let _capacity: Int
@@ -23,40 +20,80 @@ class _QueueStore<Element>: _Store {
   var _lastOp: _QueueOp
 
   @usableFromInline
-  init(capacity: Int) {
-    _buffer = .allocate(capacity: capacity)
+  override init(capacity: Int) {
     _capacity = capacity
     _head = 0
     _tail = 0
     _lastOp = .dequeue
+    super.init(capacity: capacity)
+  }
+
+  @inlinable
+  init<S: Sequence>(_ elements: S) where S.Element == Element {
+    let capacity = _count(elements)
+    _capacity = capacity
+    _head = 0
+    _tail = 0
+    _lastOp = .enqueue
+    super.init(capacity: capacity)
+    self.initialize(from: elements)
   }
 
   @usableFromInline
   required init(_ _store: _QueueStore) {
-    _buffer = .allocate(capacity: _store._capacity)
-    var iter = QueueIterator(_store)
-    var i = 0
-    while let element = iter.next() {
-      _buffer.baseAddress!.advanced(by: i).initialize(to: element)
-      i += 1
-    }
     _capacity = _store._capacity
     _head = _store._head
     _tail = _store._tail
     _lastOp = _store._lastOp
+    super.init(capacity: _store._capacity)
+    moveInitialize(from: _store)
   }
 
+  @inlinable
   deinit {
-    var current = _head
-    if current == _tail && _lastOp == .dequeue {
-      _buffer.deallocate()
+    if _head == _tail {
+      if _lastOp == .enqueue {
+        deinitialize(range: 0..<_capacity)
+      }
+    } else if _head < _tail {
+      deinitialize(range: _head..<_tail)
+    } else {
+      deinitialize(range: _head..<_capacity)
+      deinitialize(range: 0..<_tail)
+    }
+  }
+
+  @inlinable
+  func moveInitialize(from _store: _QueueStore<Element>) {
+    if _store._head == _store._tail {
+      if _store._lastOp == .enqueue {
+        guard _store._capacity <= _capacity else {
+          fatalError("queue is too small")
+        }
+        _head = 0
+        _tail = _store._capacity % _capacity
+        moveInitialize(from: _store, range: 0..<_store._capacity)
+      } else {
+        _head = 0
+        _tail = 0
+      }
       return
     }
-    repeat {
-      delete(at: current)
-      current = (current + 1) % _capacity
-    } while current != _tail
-    _buffer.deallocate()
+    if _store._head < _store._tail {
+      guard _store._tail - _store._head <= _capacity else {
+        fatalError("queue is too small")
+      }
+      moveInitialize(from: _store, range: _head..<_tail)
+    } else {
+      let count = _store._tail + _store._capacity - _store._head
+      guard count <= _capacity else {
+        fatalError("queue is too small")
+      }
+      moveInitialize(from: _store, range: _head..<_store._capacity, at: 0)
+      moveInitialize(from: _store, range: 0..<_tail, at: _store._capacity - _head)
+      _tail = count
+      _head = 0
+    }
   }
 
   @usableFromInline

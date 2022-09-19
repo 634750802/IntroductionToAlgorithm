@@ -29,6 +29,23 @@ extension _QueueProtocol {
   }
 
   @inlinable
+  public mutating func resize(capacity: Int) {
+    _cloneIfNeeds()
+    let count = count
+    guard capacity >= count else { fatalError("new capacity must greater than current size") }
+    let store = _QueueStore<Element>(capacity: capacity)
+    store.moveInitialize(from: _store)
+    self = .init(_store: store)
+  }
+
+  @inlinable
+  public mutating func increaseSizeIfNeed(factor: Float) {
+    if isFull {
+      resize(capacity: Int(Float(_store._capacity) * factor))
+    }
+  }
+
+  @inlinable
   public func makeIterator() -> QueueIterator<Element> {
     QueueIterator(_store)
   }
@@ -41,5 +58,13 @@ extension _QueueProtocol {
   @inlinable
   public var isEmpty: Bool {
     _store._tail == _store._head && _store._lastOp == .dequeue
+  }
+
+  @inlinable
+  public var count: Int {
+    if _store._tail == _store._head {
+      return _store._lastOp == .enqueue ? _store._capacity : 0
+    }
+    return (_store._tail - _store._head + _store._capacity) % _store._capacity
   }
 }

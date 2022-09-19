@@ -15,9 +15,15 @@ public struct Stack<Element>: _StackProtocol {
     _store._array.append(element)
   }
 
+  @discardableResult
   @inlinable
   public mutating func pop() -> Element? {
     _cloneIfNeeds()
     return _store._array.popLast()
+  }
+
+  @inlinable
+  public var isEmpty: Bool {
+    _store._array.isEmpty
   }
 }

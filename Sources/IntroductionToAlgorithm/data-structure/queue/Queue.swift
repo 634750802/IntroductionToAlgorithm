@@ -18,14 +18,7 @@ public struct Queue<Element>: _QueueProtocol {
   }
 
   public init<S: Sequence>(_ elements: S) where S.Element == Element {
-    let capacity = _count(elements)
-    let store = _QueueStore<Element>(capacity: capacity)
-    var iter = elements.makeIterator()
-    var i = 0
-    while let element = iter.next() {
-      store.set(element: element, at: i)
-      i += 1
-    }
+    let store = _QueueStore<Element>(elements)
     self.init(_store: store)
   }
 }

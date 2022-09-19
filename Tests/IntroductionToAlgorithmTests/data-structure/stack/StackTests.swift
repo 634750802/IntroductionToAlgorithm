@@ -30,4 +30,13 @@ final class StackTests: XCTestCase {
     XCTAssertTrue(a._store._array.isEmpty)
     XCTAssertFalse(b._store._array.isEmpty)
   }
+
+  func testIsEmpty () {
+    var a = Stack<Int>()
+    XCTAssertTrue(a.isEmpty)
+    a.push(0)
+    XCTAssertFalse(a.isEmpty)
+    a.pop()
+    XCTAssertTrue(a.isEmpty)
+  }
 }
