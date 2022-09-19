@@ -90,40 +90,88 @@ final class QueueTests: XCTestCase {
 
   func testResize() {
     var a = Queue([1, 2, 3])
+    var b = a
+    b._cloneIfNeeds()
 
     a.resize(capacity: 5)
+    b = a
+    b._cloneIfNeeds()
     XCTAssertFalse(a.isFull)
     XCTAssertEqual(Array(a), [1, 2, 3])
+    XCTAssertFalse(b.isFull)
+    XCTAssertEqual(Array(b), [1, 2, 3])
+
 
     a.resize(capacity: 4)
+    b = a
+    b._cloneIfNeeds()
     XCTAssertFalse(a.isFull)
     XCTAssertEqual(Array(a), [1, 2, 3])
+    XCTAssertFalse(b.isFull)
+    XCTAssertEqual(Array(b), [1, 2, 3])
 
     a.enqueue(4)
+    b = a
+    b._cloneIfNeeds()
     XCTAssertTrue(a.isFull)
     XCTAssertEqual(Array(a), [1, 2, 3, 4])
+    XCTAssertTrue(b.isFull)
+    XCTAssertEqual(Array(b), [1, 2, 3, 4])
 
     a.dequeue()
     a.resize(capacity: 3)
+    b = a
+    b._cloneIfNeeds()
     XCTAssertTrue(a.isFull)
     XCTAssertEqual(Array(a), [2, 3, 4])
+    XCTAssertTrue(b.isFull)
+    XCTAssertEqual(Array(b), [2, 3, 4])
 
     a.dequeue()
     a.dequeue()
     a.enqueue(5)
     a.resize(capacity: 2)
+    b = a
+    b._cloneIfNeeds()
     XCTAssertTrue(a.isFull)
     XCTAssertEqual(Array(a), [4, 5])
+    XCTAssertTrue(b.isFull)
+    XCTAssertEqual(Array(b), [4, 5])
 
     a.resize(capacity: 3)
+    b = a
+    b._cloneIfNeeds()
     XCTAssertFalse(a.isFull)
     XCTAssertEqual(Array(a), [4, 5])
+    XCTAssertFalse(b.isFull)
+    XCTAssertEqual(Array(b), [4, 5])
 
     a.dequeue()
     a.dequeue()
     a.resize(capacity: 1)
+    b = a
+    b._cloneIfNeeds()
     XCTAssertTrue(a.isEmpty)
     XCTAssertEqual(Array(a), [])
+    XCTAssertTrue(b.isEmpty)
+    XCTAssertEqual(Array(b), [])
+
+    a = Queue([1, 2, 3])
+    a.dequeue()
+    a.enqueue(4)
+    a.resize(capacity: 5)
+    b = a
+    b._cloneIfNeeds()
+    XCTAssertEqual(Array(a), [2, 3, 4])
+    XCTAssertEqual(Array(b), [2, 3, 4])
+
+    a = Queue([1, 2, 3])
+    a._store._head = 1
+    a._store._tail = 1
+    b = a
+    b._cloneIfNeeds()
+    XCTAssertEqual(Array(a), [2, 3, 1])
+    XCTAssertEqual(Array(b), [2, 3, 1])
   }
 
   func testCount() {

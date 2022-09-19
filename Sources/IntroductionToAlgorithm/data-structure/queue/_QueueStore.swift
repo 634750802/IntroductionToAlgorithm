@@ -77,7 +77,6 @@ final class _QueueStore<Element>: _UnsafeListStore<Element>, _Store {
         _head = 0
         _tail = _store._capacity % _capacity
         _lastOp = .enqueue
-        // TODO: Add test cases when queue was rotated and moved
         moveInitialize(from: _store, range: _store._head..<_store._capacity, at: 0)
         if 0 < _store._tail {
           moveInitialize(from: _store, range: 0..<_store._tail, at: _store._capacity - _store._head)
