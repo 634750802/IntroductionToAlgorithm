@@ -43,7 +43,7 @@ final class _QueueStore<Element>: _UnsafeListStore<Element>, _Store {
   required init(_ _store: _QueueStore) {
     _capacity = _store._capacity
     _head = _store._head
-    _tail = _store._tail
+    _tail = _store._tail % _capacity
     _lastOp = _store._lastOp
     super.init(capacity: _store._capacity)
     moveInitialize(from: _store)
@@ -72,10 +72,12 @@ final class _QueueStore<Element>: _UnsafeListStore<Element>, _Store {
         }
         _head = 0
         _tail = _store._capacity % _capacity
+        _lastOp = .enqueue
         moveInitialize(from: _store, range: 0..<_store._capacity)
       } else {
         _head = 0
         _tail = 0
+        _lastOp = .dequeue
       }
       return
     }
@@ -83,16 +85,21 @@ final class _QueueStore<Element>: _UnsafeListStore<Element>, _Store {
       guard _store._tail - _store._head <= _capacity else {
         fatalError("queue is too small")
       }
-      moveInitialize(from: _store, range: _head..<_tail)
+      moveInitialize(from: _store, range: _store._head..<_store._tail, at: 0)
+      _head = 0
+      _tail = _store._tail - _store._head
     } else {
       let count = _store._tail + _store._capacity - _store._head
       guard count <= _capacity else {
         fatalError("queue is too small")
       }
-      moveInitialize(from: _store, range: _head..<_store._capacity, at: 0)
-      moveInitialize(from: _store, range: 0..<_tail, at: _store._capacity - _head)
-      _tail = count
+      moveInitialize(from: _store, range: _store._head..<_store._capacity, at: 0)
+      if 0 < _store._tail {
+        moveInitialize(from: _store, range: 0..<_store._tail, at: _store._capacity - _store._head)
+      }
+      _tail = count % _capacity
       _head = 0
+      _lastOp = .enqueue
     }
   }
 

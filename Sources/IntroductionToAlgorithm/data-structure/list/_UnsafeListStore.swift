@@ -64,12 +64,12 @@ internal class _UnsafeListStore<Element> {
 
   @inlinable
   func moveInitialize(from: UnsafeMutablePointer<Element>, range: Range<Int>, at index: Int = 0) {
-    pointer(at: index).moveInitialize(from: from, count: range.count)
+    pointer(at: index).moveInitialize(from: from.advanced(by: range.startIndex), count: range.count)
   }
 
   @inlinable
   func moveInitialize(from: _UnsafeListStore<Element>, range: Range<Int>, at index: Int = 0) {
-    moveInitialize(from: from.pointer(at: range.startIndex), range: range, at: index)
+    moveInitialize(from: from.pointer(at: 0), range: range, at: index)
   }
 
   @inlinable
