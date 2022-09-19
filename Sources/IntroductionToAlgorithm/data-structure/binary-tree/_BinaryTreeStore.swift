@@ -109,6 +109,8 @@ func _binary_tree_node_walk_bf<T, S>(node: _BinaryTreePointer<T>, initialState: 
   var state = initialState
   queue.enqueue(node)
   loop: while let node = queue.dequeue() {
+    let l = node.pointee._l
+    let r = node.pointee._r
     switch walker(node, state) {
       case .next(let s):
         state = s
@@ -119,11 +121,11 @@ func _binary_tree_node_walk_bf<T, S>(node: _BinaryTreePointer<T>, initialState: 
         state = s
         break loop
     }
-    if let l = node.pointee._l {
+    if let l {
       queue.increaseSizeIfNeed(factor: 2)
       queue.enqueue(l)
     }
-    if let r = node.pointee._r {
+    if let r {
       queue.increaseSizeIfNeed(factor: 2)
       queue.enqueue(r)
     }
@@ -137,6 +139,8 @@ func _binary_tree_node_walk_df<T, S>(node: _BinaryTreePointer<T>, initialState: 
   var state = initialState
   stack.push(node)
   loop: while let node = stack.pop() {
+    let l = node.pointee._l
+    let r = node.pointee._r
     switch walker(node, state) {
       case .next(let s):
         state = s
@@ -147,10 +151,10 @@ func _binary_tree_node_walk_df<T, S>(node: _BinaryTreePointer<T>, initialState: 
         state = s
         break loop
     }
-    if let r = node.pointee._r {
+    if let r {
       stack.push(r)
     }
-    if let l = node.pointee._l {
+    if let l {
       stack.push(l)
     }
   }
