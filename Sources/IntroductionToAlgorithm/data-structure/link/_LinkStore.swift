@@ -154,7 +154,7 @@ func _link_node_delete_next<T>(node: inout some _LinkPointerHolder<T>) {
 @usableFromInline
 var _debug_link_node_count = 0
 
-#if DEBUG
+#if DEBUG || RELEASE_TEST
   @inlinable
   func _debug_link_allocate_record() {
     _debug_link_node_count += 1
